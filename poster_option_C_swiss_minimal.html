@@ -1,0 +1,320 @@
+<title>路線超量檢查工具 — 海報方向 C：極簡排版風</title>
+<style>
+  :root{
+    --paper:#F6F4EE;
+    --ink:#15140F;
+    --accent:#C23B1E;
+    --line:#15140F;
+
+    --f-display:"Bahnschrift","Arial Narrow","Microsoft JhengHei","PingFang TC",sans-serif;
+    --f-body:"Microsoft JhengHei","PingFang TC","Noto Sans TC","Segoe UI",sans-serif;
+    --f-mono:"Cascadia Mono","Consolas","SF Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{scrollbar-width:none;}
+  body::-webkit-scrollbar{display:none;}
+  body{
+    background:#DAD5C6;
+    color:var(--ink);
+    font-family:var(--f-body);
+  }
+  body.clean{background:var(--paper);}
+  body.clean .sheet{box-shadow:none;margin:0;}
+
+  .sheet{
+    max-width:860px;
+    aspect-ratio:841/1189;
+    margin:0 auto;
+    background:var(--paper);
+    box-shadow:0 30px 70px rgba(10,10,5,0.2);
+    display:grid;
+    grid-template-rows:auto 1fr auto auto auto;
+    padding:56px 56px 44px;
+    position:relative;
+  }
+  .noise-field{
+    position:absolute;
+    inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+  .sheet > *:not(.noise-field){position:relative;}
+
+  .row-top{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    font-family:var(--f-mono);
+    font-size:0.78rem;
+    letter-spacing:0.05em;
+    padding-bottom:24px;
+    border-bottom:1.5px solid var(--line);
+  }
+  .row-top .name{
+    font-family:var(--f-display);
+    font-weight:800;
+    font-size:1.15rem;
+    letter-spacing:0.01em;
+  }
+  .row-top .r{text-align:right; color:var(--ink); opacity:0.6;}
+
+  .hero{
+    display:flex; flex-direction:column; justify-content:center;
+    padding:30px 0;
+  }
+  .hero .q{
+    font-family:var(--f-display);
+    font-weight:800;
+    font-size:clamp(1.8rem,4.2vw,2.5rem);
+    line-height:1.15;
+    max-width:15ch;
+    margin:0 0 40px;
+  }
+  .stat-row{
+    position:relative;
+  }
+  .hero .stat{
+    display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;
+  }
+  .hero .stat .pct{
+    font-family:var(--f-mono);
+    font-weight:700;
+    font-size:1.15rem;
+    color:var(--paper);
+    background:var(--ink);
+    padding:5px 12px;
+    letter-spacing:0.02em;
+  }
+  .qr-guide{
+    position:absolute;
+    right:14px;
+    top:100%;
+    margin-top:16px;
+    display:flex; align-items:flex-end; gap:10px;
+  }
+  .qr-guide .trail{width:52px;height:32px;flex:none;}
+  .qr-guide .runtext{
+    writing-mode:vertical-rl;
+    font-family:var(--f-mono);
+    font-size:0.6rem;
+    letter-spacing:0.3em;
+    color:var(--accent);
+    padding-bottom:4px;
+  }
+  .qr-guide .qr{
+    width:76px;height:76px;
+    border:1.5px solid var(--line);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:var(--f-mono);font-size:0.54rem;text-align:center;
+    position:relative;
+    flex:none;
+  }
+  .qr-guide .qr::before,.qr-guide .qr::after{content:"";position:absolute;width:9px;height:9px;}
+  .qr-guide .qr::before{top:-5px;left:-5px;border-top:1.5px solid var(--accent);border-left:1.5px solid var(--accent);}
+  .qr-guide .qr::after{bottom:-5px;right:-5px;border-bottom:1.5px solid var(--accent);border-right:1.5px solid var(--accent);}
+  .hero .stat .num{
+    font-family:var(--f-mono);
+    font-weight:700;
+    font-size:clamp(3rem,10.5vw,6.6rem);
+    line-height:0.85;
+    color:var(--accent);
+    letter-spacing:-0.01em;
+  }
+  .hero .stat .unit{
+    font-family:var(--f-display);
+    font-weight:800;
+    font-size:1.6rem;
+  }
+  .hero .cap{
+    font-size:1rem;
+    margin-top:96px;
+    max-width:34ch;
+    color:var(--ink);
+  }
+  .hero .cap b{color:var(--accent);}
+
+  .rule{border-top:1.5px solid var(--line); margin:0;}
+
+  .facts{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    padding:22px 0;
+  }
+  .facts div{border-left:1px solid var(--line); padding:0 16px 0 16px;}
+  .facts div:first-child{border-left:none; padding-left:0;}
+  .facts .n{font-family:var(--f-mono);font-size:1.6rem;font-weight:700;}
+  .facts .l{font-size:0.72rem;letter-spacing:0.04em;margin-top:3px;opacity:0.65;}
+
+  .foot{
+    padding-top:22px;
+    font-family:var(--f-mono);
+    font-size:0.72rem;
+    letter-spacing:0.03em;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+  }
+  .foot .case{max-width:56ch;}
+  .foot .case b{color:var(--accent);font-family:var(--f-body);}
+  .foot .note{
+    font-size:0.62rem;
+    color:var(--ink);
+    opacity:0.55;
+    white-space:nowrap;
+    flex:none;
+  }
+</style>
+
+<body>
+<div class="sheet">
+
+  <svg class="noise-field" viewBox="0 0 841 1189" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="40" y1="60" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.085"/>
+      <line x1="30" y1="420" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.053"/>
+      <line x1="60" y1="900" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.077"/>
+      <line x1="300" y1="40" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.071"/>
+      <line x1="700" y1="1150" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.098"/>
+      <line x1="810" y1="300" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.096"/>
+      <line x1="120" y1="1100" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.063"/>
+      <line x1="810" y1="900" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.074"/>
+      <line x1="10" y1="180" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.056"/>
+      <line x1="500" y1="20" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.072"/>
+      <line x1="830" y1="60" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.091"/>
+      <line x1="20" y1="1000" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.095"/>
+      <line x1="650" y1="1180" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.074"/>
+      <line x1="150" y1="650" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.066"/>
+      <line x1="400" y1="1170" x2="720" y2="610" stroke="var(--accent)" stroke-width="0.6" opacity="0.06"/>
+      <circle cx="381.9" cy="663.8" r="2.0" fill="var(--ink)" opacity="0.189"/>
+      <circle cx="426.9" cy="695.8" r="1.04" fill="var(--ink)" opacity="0.202"/>
+      <circle cx="525.8" cy="934.1" r="0.92" fill="var(--ink)" opacity="0.171"/>
+      <circle cx="88.5" cy="953.4" r="1.7" fill="var(--ink)" opacity="0.065"/>
+      <circle cx="811.6" cy="1133.2" r="1.65" fill="var(--ink)" opacity="0.145"/>
+      <circle cx="142.7" cy="32.4" r="1.49" fill="var(--ink)" opacity="0.063"/>
+      <circle cx="169.3" cy="295.4" r="0.84" fill="var(--ink)" opacity="0.109"/>
+      <circle cx="372.3" cy="991.4" r="1.47" fill="var(--ink)" opacity="0.15"/>
+      <circle cx="420.3" cy="782.8" r="1.39" fill="var(--ink)" opacity="0.179"/>
+      <circle cx="824.1" cy="1169.0" r="1.89" fill="var(--ink)" opacity="0.139"/>
+      <circle cx="270.7" cy="281.2" r="1.18" fill="var(--ink)" opacity="0.111"/>
+      <circle cx="636.5" cy="479.1" r="1.9" fill="var(--ink)" opacity="0.237"/>
+      <circle cx="792.0" cy="997.0" r="0.8" fill="var(--ink)" opacity="0.162"/>
+      <circle cx="753.2" cy="559.7" r="2.07" fill="var(--ink)" opacity="0.263"/>
+      <circle cx="74.2" cy="744.5" r="1.81" fill="var(--ink)" opacity="0.092"/>
+      <circle cx="85.7" cy="400.5" r="2.05" fill="var(--ink)" opacity="0.114"/>
+      <circle cx="110.7" cy="300.6" r="0.93" fill="var(--ink)" opacity="0.075"/>
+      <circle cx="661.4" cy="220.9" r="1.53" fill="var(--ink)" opacity="0.174"/>
+      <circle cx="169.6" cy="863.3" r="0.97" fill="var(--ink)" opacity="0.126"/>
+      <circle cx="109.5" cy="502.7" r="1.08" fill="var(--ink)" opacity="0.103"/>
+      <circle cx="802.4" cy="946.2" r="1.2" fill="var(--ink)" opacity="0.209"/>
+      <circle cx="185.9" cy="472.0" r="1.91" fill="var(--ink)" opacity="0.141"/>
+      <circle cx="96.4" cy="1161.6" r="1.08" fill="var(--ink)" opacity="0.073"/>
+      <circle cx="641.7" cy="396.3" r="1.19" fill="var(--ink)" opacity="0.201"/>
+      <circle cx="88.1" cy="690.4" r="1.12" fill="var(--ink)" opacity="0.115"/>
+      <circle cx="316.5" cy="540.3" r="2.05" fill="var(--ink)" opacity="0.172"/>
+      <circle cx="481.0" cy="1019.3" r="1.04" fill="var(--ink)" opacity="0.138"/>
+      <circle cx="751.7" cy="962.8" r="1.12" fill="var(--ink)" opacity="0.172"/>
+      <circle cx="614.7" cy="1104.9" r="1.06" fill="var(--ink)" opacity="0.169"/>
+      <circle cx="730.5" cy="714.5" r="1.35" fill="var(--ink)" opacity="0.236"/>
+      <circle cx="46.4" cy="1130.7" r="1.11" fill="var(--ink)" opacity="0.095"/>
+      <circle cx="223.4" cy="969.7" r="1.58" fill="var(--ink)" opacity="0.106"/>
+      <circle cx="157.3" cy="849.9" r="0.89" fill="var(--ink)" opacity="0.103"/>
+      <circle cx="468.6" cy="1002.9" r="1.6" fill="var(--ink)" opacity="0.146"/>
+      <circle cx="759.0" cy="251.4" r="0.82" fill="var(--ink)" opacity="0.174"/>
+      <circle cx="376.5" cy="85.1" r="1.03" fill="var(--ink)" opacity="0.106"/>
+      <circle cx="479.0" cy="167.5" r="1.27" fill="var(--ink)" opacity="0.166"/>
+      <circle cx="810.2" cy="776.4" r="1.7" fill="var(--ink)" opacity="0.237"/>
+      <circle cx="128.8" cy="55.7" r="0.82" fill="var(--ink)" opacity="0.106"/>
+      <circle cx="583.5" cy="1130.9" r="0.83" fill="var(--ink)" opacity="0.144"/>
+      <circle cx="406.1" cy="861.6" r="1.21" fill="var(--ink)" opacity="0.199"/>
+      <circle cx="76.0" cy="647.9" r="1.76" fill="var(--ink)" opacity="0.128"/>
+      <circle cx="612.8" cy="830.6" r="1.83" fill="var(--ink)" opacity="0.238"/>
+      <circle cx="300.3" cy="809.1" r="1.97" fill="var(--ink)" opacity="0.176"/>
+      <circle cx="353.3" cy="931.2" r="1.92" fill="var(--ink)" opacity="0.155"/>
+      <circle cx="521.8" cy="458.1" r="1.56" fill="var(--ink)" opacity="0.222"/>
+      <circle cx="80.0" cy="756.1" r="2.09" fill="var(--ink)" opacity="0.124"/>
+      <circle cx="605.6" cy="465.2" r="1.76" fill="var(--ink)" opacity="0.238"/>
+      <circle cx="372.3" cy="986.7" r="0.91" fill="var(--ink)" opacity="0.157"/>
+      <circle cx="39.2" cy="711.9" r="1.43" fill="var(--ink)" opacity="0.082"/>
+      <circle cx="581.3" cy="591.3" r="1.6" fill="var(--ink)" opacity="0.268"/>
+      <circle cx="222.5" cy="28.1" r="1.19" fill="var(--ink)" opacity="0.094"/>
+      <circle cx="179.3" cy="211.6" r="1.98" fill="var(--ink)" opacity="0.109"/>
+      <circle cx="373.4" cy="1048.5" r="1.23" fill="var(--ink)" opacity="0.14"/>
+      <circle cx="176.0" cy="514.4" r="1.85" fill="var(--ink)" opacity="0.154"/>
+      <circle cx="728.9" cy="460.5" r="1.56" fill="var(--ink)" opacity="0.235"/>
+      <circle cx="125.4" cy="590.4" r="1.89" fill="var(--ink)" opacity="0.139"/>
+      <circle cx="591.8" cy="1116.1" r="1.16" fill="var(--ink)" opacity="0.125"/>
+      <circle cx="380.5" cy="333.9" r="1.08" fill="var(--ink)" opacity="0.161"/>
+      <circle cx="522.5" cy="587.4" r="1.21" fill="var(--ink)" opacity="0.247"/>
+      <circle cx="811.4" cy="539.4" r="0.9" fill="var(--ink)" opacity="0.23"/>
+      <circle cx="722.9" cy="63.1" r="1.72" fill="var(--ink)" opacity="0.138"/>
+      <circle cx="265.6" cy="932.4" r="0.82" fill="var(--ink)" opacity="0.114"/>
+      <circle cx="383.9" cy="43.7" r="1.88" fill="var(--ink)" opacity="0.091"/>
+      <circle cx="129.2" cy="69.4" r="1.62" fill="var(--ink)" opacity="0.082"/>
+      <circle cx="525.9" cy="774.2" r="1.85" fill="var(--ink)" opacity="0.238"/>
+      <circle cx="570.1" cy="246.0" r="1.42" fill="var(--ink)" opacity="0.161"/>
+      <circle cx="23.7" cy="562.3" r="1.73" fill="var(--ink)" opacity="0.077"/>
+      <circle cx="235.9" cy="415.7" r="1.71" fill="var(--ink)" opacity="0.143"/>
+      <circle cx="513.3" cy="891.4" r="1.31" fill="var(--ink)" opacity="0.204"/>
+      <circle cx="750.0" cy="116.1" r="2.01" fill="var(--ink)" opacity="0.16"/>
+      <circle cx="120.4" cy="540.6" r="1.61" fill="var(--ink)" opacity="0.14"/>
+      <circle cx="320.6" cy="674.3" r="1.94" fill="var(--ink)" opacity="0.189"/>
+      <circle cx="780.8" cy="552.4" r="1.65" fill="var(--ink)" opacity="0.247"/>
+      <circle cx="600.5" cy="963.5" r="1.63" fill="var(--ink)" opacity="0.193"/>
+      <circle cx="188.0" cy="1058.1" r="2.07" fill="var(--ink)" opacity="0.118"/>
+      <circle cx="450.5" cy="931.5" r="1.22" fill="var(--ink)" opacity="0.19"/>
+      <circle cx="709.0" cy="418.9" r="0.91" fill="var(--ink)" opacity="0.229"/>
+      <circle cx="461.3" cy="905.4" r="1.43" fill="var(--ink)" opacity="0.154"/>
+      <circle cx="671.2" cy="89.2" r="1.84" fill="var(--ink)" opacity="0.125"/>
+      <circle cx="286.7" cy="928.2" r="0.98" fill="var(--ink)" opacity="0.12"/>
+      <circle cx="433.9" cy="853.6" r="1.89" fill="var(--ink)" opacity="0.191"/>
+      <circle cx="782.0" cy="585.9" r="2.03" fill="var(--ink)" opacity="0.246"/>
+      <circle cx="194.6" cy="625.4" r="1.18" fill="var(--ink)" opacity="0.152"/>
+      <circle cx="533.1" cy="620.9" r="1.9" fill="var(--ink)" opacity="0.237"/>
+      <circle cx="267.8" cy="456.8" r="1.9" fill="var(--ink)" opacity="0.174"/>
+      <circle cx="183.9" cy="1001.0" r="2.06" fill="var(--ink)" opacity="0.104"/>
+      <circle cx="479.7" cy="247.9" r="1.5" fill="var(--ink)" opacity="0.166"/>
+      <circle cx="505.8" cy="47.2" r="2.06" fill="var(--ink)" opacity="0.12"/>
+      <circle cx="339.9" cy="943.4" r="1.53" fill="var(--ink)" opacity="0.146"/>
+  </svg>
+
+  <div class="row-top">
+    <div class="name">路線超量檢查工具</div>
+    <div class="r">專題名稱｜門市補貨之運能與成本最佳化</div>
+  </div>
+
+  <div class="hero">
+    <div class="q">一條路線又超量了，你會怎麼辦？</div>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="num">1,218,479</div>
+        <div class="unit">元</div>
+        <div class="pct">－34.2%</div>
+      </div>
+      <div class="qr-guide">
+        <div class="runtext">掃描看細節</div>
+        <div class="qr"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAV4AAAFeAQAAAADlUEq3AAAC1UlEQVR4nO1bS27bQAwlxwa8lIAcIEeZ3KBHytWko/QAAeSlAQks+BtN2jpRNy5hkAthJHFBzBPJeSSFBIdlK8d1AVL5MbsBNLUVLSeCSkQAwwoAA/Etr0SGNUHpJchunAGGhRcbr264uyTxM7nVZ/OPKDaXVP5tNzZEHBkjPAPiuCFU9ka7lReIrnxYSir/n92oDB6jKqs9xj7YjK8kle/vxok9DxFmvBDMIwC+3Vf+RlL5YXkQ1OlAM2JVrxMffJFkCFAtOyYovQQ8i07D+teLSZ5FQyJ4bg7GciKEQVYAKA5aFzuKJh8MiiDsXkYiE5xImSGTQiLng7wKYnNJ5V4ENnE/YrQMPMmNSutXcURBOreul1g+WNnVtByjwkRCfFAohakEsbmkci80DRo+yRzRWWAXVO02EYz4IYFVQ6Wy5rFTUNW3jGB7EcTmksq9qPtJAK0tD+pqfybHmUQw5IcEHixBgTL3Gz4FUKGMmQfDIrhYsKQGnrikvugumQcjK1e6IcAV24Wrbd4kRBy5YDoGs/mYlOdXnl8ZqOvFY6deboiIF+IrV0i37C5FRRAkRNqKvDOvB1Jl+d6yzzwYFkHixKfEvZ1fdjaRle3wCE4+DkPqjUrwvRxjBF9rbkFsLqncSxcsq0PmbEJa9jvNSASD+6CKwdhWyiuU5QexuaTyH5NOXsomna3Q8+nMM0887qSr3LqYHxJYK15vzP3MB/dR0ayLRkZwl6n1ehVQZ/Rt3iKIzSWV785sQ6MP1vD1VkXywcgf0iAOuHK6k0fSbJIpYCMSVmSLZPNxKc+ufPaB+w+dNpRJJ5pfCRCuCMQXRnXFefwIYnNJ5S9344qI7z8RxTPxzcukHG1z63oJshtgic8LoT4s45UYo/VZkwmNIGkeJOsUGpHwrqCfRbOqFhPBomETlbhbQW1vNskrfF9OxH9QxLH5uJRnV8b8h7eTIKD8k/IvDD5RmKmVcRUAAAAASUVORK5CYII=" alt="展示網頁 QRCode" width="76" height="76"></div>
+      </div>
+    </div>
+    <div class="cap">用工具規劃配線，比超量直接加車，<b>省下這筆錢</b>。</div>
+  </div>
+
+  <div class="rule"></div>
+
+  <div class="facts">
+    <div><div class="n">104</div><div class="l">總路線數</div></div>
+    <div><div class="n">71</div><div class="l">超量路線</div></div>
+    <div><div class="n">4</div><div class="l">操作分頁</div></div>
+    <div><div class="n">17</div><div class="l">報表分頁</div></div>
+  </div>
+
+  <div class="rule"></div>
+
+  <div class="foot">
+    <div class="case">案例：路線 <b>B30</b> 超量 5.80 板 → 併入 B22，剩餘超量歸零。完整流程、畫面截圖、技術細節見網站。</div>
+    <div class="note">此為旺季金額</div>
+  </div>
+
+</div>
+<script>
+  if(location.search.includes("clean")){ document.body.classList.add("clean"); }
+</script>
+</body>
